@@ -3,21 +3,18 @@
 
 // Include our LUA binding
 #include <selene.h>
-
-// Include SFML
-#include <SFML/Graphics.hpp>
+#include "types.hpp"
 
 int main(int argc, char** argv) {
   // Setup the Lua interpreter
   sel::State state{true};
 
-  state["Vector"].SetClass<sf::Vector2<double>, double, double>(
-    "x", &sf::Vector2<double>::x,
-    "y", &sf::Vector2<double>::y
-  );
+  bridge::setDefinedClasses(state);
+
   state.Load(__SRC_DIR__ + "/scripts/test.lua");
 
-  sel::Pointer<sf::Vector2<double>> position = state["position"];
+  sel::Pointer<sf::Vector2<double>> position_ptr = state["position"];
+  auto position = position_ptr.get();
 
   // Create our rendering window
   sf::RenderWindow window(sf::VideoMode(600, 300), "SFML works!");
@@ -34,7 +31,7 @@ int main(int argc, char** argv) {
      }
 
      state["update"]();
-     shape.setPosition(position.get()->x, position.get()->y);
+     shape.setPosition(position->x, position->y);
 
      window.clear();
      window.draw(shape);
